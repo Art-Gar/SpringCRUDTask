@@ -1,8 +1,11 @@
 package com.example.springcrudtask.entities;
 import  jakarta.persistence.*;
+
+import java.util.List;
+
 @Entity
 @Table(name="clients")
-public class Club {
+public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -14,10 +17,12 @@ public class Club {
     private String email;
     @Column
     private String phone;
-    public Club() {
+    @OneToMany(mappedBy = "client")
+    private List<Registrations> registrations;
+    public Client() {
     }
-    public Club(String name, String surname,
-                String email, String phone) {
+    public Client(String name, String surname,
+                  String email, String phone) {
         this.name=name;
         this.surname=surname;
         this.email=email;
@@ -63,14 +68,16 @@ public class Club {
     public String getPhone() {
         return phone;
     }
+
     @Override
     public String toString() {
-        return "Club{" +
+        return "Client{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", surname=" + surname + '\'' +
-                ", email=" + email + '\'' +
-                ", phone=" + phone +
+                ", surname='" + surname + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", registrations=" + registrations +
                 '}';
     }
 }
