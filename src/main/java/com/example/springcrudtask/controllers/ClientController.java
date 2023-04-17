@@ -5,6 +5,8 @@ import com.example.springcrudtask.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,20 +25,28 @@ public class ClientController {
     }
 
     @GetMapping("/clients/new")
-    public String newclient(){
+    public String newClientGet(Model model){
+        model.addAttribute("client",new Client());
         return "clients_new";
     }
 
     @PostMapping("/clients/new")
     public String storeclient(
-            @RequestParam("name") String name,
-            @RequestParam("surname") String surname,
-            @RequestParam("email") String email,
-            @RequestParam("phone") String phone
+            Model model,
+            String name,
+            String surname,
+            String email,
+            String phone,
+            @Validated @ModelAttribute("client") Client client,
+            BindingResult result
     ){
-        Client c=new Client(name, surname, email, phone);
-        clientRepository.save(c);
-        return "redirect:/clients";
+        if (result.hasErrors()) {
+        return "clients_new";
+        } else {
+            Client c = new Client(name, surname, email, phone);
+            clientRepository.save(c);
+            return "redirect:/clients";
+        }
     }
 
     @GetMapping("clients/update/{id}")
@@ -52,19 +62,21 @@ public class ClientController {
     @PostMapping("clients/update/{id}")
     public String save(
             @PathVariable("id") Integer id,
-            @RequestParam("name") String name,
-            @RequestParam("surname") String surname,
-            @RequestParam("email") String email,
-            @RequestParam("phone") String phone
+            @Validated @ModelAttribute("client") Client client,
+            BindingResult result
     ){
-        Client c=clientRepository.getReferenceById(id);
-        c.setName(name);
-        c.setSurname(surname);
-        c.setEmail(email);
-        c.setPhone(phone);
-        clientRepository.save(c);
-
-        return "redirect:/clients";
+        if (result.hasErrors()) {
+            return "clients_update";
+        }
+        else {
+            Client c = clientRepository.getReferenceById(id);
+            c.setName(client.getName());
+            c.setSurname(client.getSurname());
+            c.setEmail(client.getEmail());
+            c.setPhone(client.getPhone());
+            clientRepository.save(c);
+            return "redirect:/clients";
+        }
     }
 
     @GetMapping("clients/delete/{id}")

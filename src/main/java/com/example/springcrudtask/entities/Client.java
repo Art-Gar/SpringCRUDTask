@@ -1,5 +1,8 @@
 package com.example.springcrudtask.entities;
 import  jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
@@ -10,12 +13,19 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column
+    @NotNull(message = "Vardas yra būtinas!")
+    @Size(min = 3, max = 20, message = "Vardas turi turėti tarp 3 ir 20 raidžių!")
     private String name;
     @Column
+    @NotNull(message = "Pavardė yra būtina!")
+    @Size(min = 3, max = 25, message = "Pavardė turi turėti tarp 3 ir 25 raidžių!")
     private String surname;
     @Column
+    @NotNull(message = "Paštas yra būtinas!")
+    @Email(message = "Elektroninis paštas nėra validus!")
     private String email;
     @Column
+    @Size(max = 15, message = "telefonas negali turėti daugiau nei 15 simbolių!")
     private String phone;
     @OneToMany(mappedBy = "client")
     private List<Registrations> registrations;
