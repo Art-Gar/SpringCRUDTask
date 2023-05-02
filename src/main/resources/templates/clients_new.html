@@ -13,7 +13,7 @@
       <div class="card">
         <div class="card-header">Narys</div>
         <div class="card-body">
-          <form method="post" action="/clients/new" th:object="${client}">
+          <form method="post" action="/clients/new" th:object="${client}" enctype="multipart/form-data">
             <div class="mb-3">
               <label class="form-label">Vardas</label>
               <input type="text" class="form-control" th:value="*{name}" th:field="*{name}">
@@ -34,7 +34,11 @@
               <input type="text" class="form-control" name="phone" th:value="*{phone}" th:field="*{phone}">
               <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></span>
             </div>
-            <button class="btn btn-success">Pridėti</button>
+            <div class="mb-3">
+              <label for="agreementFile" class="form-label">Sutartis</label>
+              <input type="file" id="agreementFile" name="agreementFile" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-success">Pridėti</button>
 
           </form>
 

@@ -2,12 +2,17 @@ package com.example.springcrudtask.controllers;
 
 import com.example.springcrudtask.entities.Client;
 import com.example.springcrudtask.repositories.ClientRepository;
+import com.example.springcrudtask.services.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,7 +21,8 @@ import java.util.List;
 public class ClientController {
     @Autowired
     public ClientRepository clientRepository;
-
+    @Autowired
+    public FileStorageService fileStorageService;
     @GetMapping("/clients")
     public String clients(Model model){
         List<Client> clients= clientRepository.findAll();
@@ -31,24 +37,43 @@ public class ClientController {
     }
 
     @PostMapping("/clients/new")
-    public String storeclient(
+    public String storeClient(
             Model model,
             String name,
             String surname,
             String email,
             String phone,
+            MultipartFile agreementFile,
             @Validated @ModelAttribute("client") Client client,
             BindingResult result
     ){
         if (result.hasErrors()) {
-        return "clients_new";
-        } else {
+            return "clients_new";
+        }
+        else {
             Client c = new Client(name, surname, email, phone);
+            if(!agreementFile.isEmpty()) {
+                c.setAgreement(agreementFile.getOriginalFilename());
+            }
             clientRepository.save(c);
+            if(!agreementFile.isEmpty()) {
+                fileStorageService.store(agreementFile, c.getId().toString());
+            }
             return "redirect:/clients";
         }
-    }
 
+
+    }
+@GetMapping("clients/{id}/agreement")
+@ResponseBody
+public ResponseEntity<Resource> getFile(@PathVariable Integer id) {
+        Client c = clientRepository.getReferenceById(id);
+    Resource r = fileStorageService.loadFile( c.getId().toString() );
+    return ResponseEntity
+            .ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+ c.getAgreement() + "\"")
+            .body(r);
+    }
     @GetMapping("clients/update/{id}")
     public String update(
             @PathVariable("id") Integer id,
@@ -86,5 +111,4 @@ public class ClientController {
         clientRepository.deleteById(id);
         return "redirect:/clients";
     }
-
 }

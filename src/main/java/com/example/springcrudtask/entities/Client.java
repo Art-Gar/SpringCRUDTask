@@ -3,6 +3,7 @@ import  jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 
@@ -27,6 +28,9 @@ public class Client {
     @Column
     @Size(max = 15, message = "telefonas negali turėti daugiau nei 15 simbolių!")
     private String phone;
+    @Column(length = 128)
+    @Value("${agreement:null}")
+    private String agreement = null;
     @OneToMany(mappedBy = "client")
     private List<Registrations> registrations;
     public Client() {
@@ -78,7 +82,13 @@ public class Client {
     public String getPhone() {
         return phone;
     }
+    public String getAgreement() {
+        return agreement;
+    }
 
+    public void setAgreement(String agreement) {
+        this.agreement = agreement;
+    }
     @Override
     public String toString() {
         return "Client{" +
